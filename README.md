@@ -14,5 +14,5 @@ $ modd
 or
 
 ```sh
-$ go run main.go server.go
+$ go run main.go server.go -d public
 ```
