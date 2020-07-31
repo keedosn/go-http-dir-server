@@ -1,24 +1,27 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
+
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	dir = kingpin.Flag("directory", "Path to dir which has to be served.").Short('d').String()
 )
 
 func main() {
-	var fdir string
-	flag.StringVar(&fdir, "d", "", "path to dir to serve")
-	flag.Parse()
+	kingpin.Parse()
 
-	if fdir == "" {
+	if *dir == "" {
 		printHelp()
 		os.Exit(0)
 	}
 
 	s := Server{
 		port:    ":8080",
-		dirPath: fdir,
+		dirPath: *dir,
 	}
 	s.Serve()
 }

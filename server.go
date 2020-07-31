@@ -14,6 +14,14 @@ type Server struct {
 	dirPath string
 }
 
+// Serve function
+func (s *Server) Serve() {
+	s.initHandler()
+
+	log.Print("Listening on", s.port)
+	log.Fatal(http.ListenAndServe(s.port, nil))
+}
+
 func (s *Server) initHandler() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := s.dirPath + r.URL.Path
@@ -33,14 +41,6 @@ func (s *Server) initHandler() {
 	})
 
 	log.Printf("Serving %v directory\n", s.dirPath)
-}
-
-// Serve function
-func (s *Server) Serve() {
-	s.initHandler()
-
-	log.Print("Listening on", s.port)
-	log.Fatal(http.ListenAndServe(s.port, nil))
 }
 
 func serveDir(w http.ResponseWriter, r *http.Request, path string) {
