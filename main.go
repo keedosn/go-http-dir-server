@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	dir = kingpin.Flag("directory", "Path to dir which has to be served.").Required().Short('d').String()
+	dir  = kingpin.Flag("directory", "Path to dir which has to be served.").Required().Short('d').String()
+	port = kingpin.Flag("port", "Port to run at").Default("8080").String()
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 	kingpin.Parse()
 
 	s := Server{
-		port:    ":8080",
+		port:    ":" + *port,
 		dirPath: *dir,
 	}
 	s.Serve()
