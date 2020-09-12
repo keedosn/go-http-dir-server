@@ -8,28 +8,27 @@ import (
 	"strings"
 )
 
+type headers map[string]string
+
 // Server base struct
 type Server struct {
 	port    string
 	dirPath string
-	cors    corsHeaders
-	cache   cacheHeaders
+	cors    headers
+	cache   headers
 }
 
-type cacheHeaders map[string]string
-type corsHeaders map[string]string
-
-var defCacheHdrs = cacheHeaders{
+var dCacheHdrs = headers{
 	"control": "no-cache",
 }
 
-var defCorsHdrs = corsHeaders{
+var dCorsHdrs = headers{
 	"origin":  "*",
 	"methods": "*",
 	"headers": "*",
 }
 
-func cacheHandler(hdrs cacheHeaders, next http.Handler) http.Handler {
+func cacheHandler(hdrs headers, next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		for k, v := range hdrs {
 			w.Header().Add("Cache-"+strings.Title(k), v)
@@ -40,9 +39,9 @@ func cacheHandler(hdrs cacheHeaders, next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func corsHandler(cors corsHeaders, next http.Handler) http.Handler {
+func corsHandler(hdrs headers, next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		for k, v := range cors {
+		for k, v := range hdrs {
 			w.Header().Add("Access-Control-Allow-"+strings.Title(k), v)
 		}
 
@@ -66,7 +65,7 @@ func (s *Server) handle() http.Handler {
 		path := s.dirPath + r.URL.Path
 		file, err := os.Lstat(path)
 		if err != nil {
-			log.Println("File asd " + path + " not exists")
+			log.Println("File " + path + " not exists")
 			http.NotFound(w, r)
 			return
 		}
@@ -83,13 +82,13 @@ func (s *Server) handle() http.Handler {
 }
 
 func (s *Server) parseArgs() {
-	for k, v := range defCorsHdrs { // parse cors into headers
+	for k, v := range dCorsHdrs { // parse cors into headers
 		if s.cors[k] == "" { // if empty
 			s.cors[k] = v
 		}
 	}
 
-	for k, v := range defCacheHdrs {
+	for k, v := range dCacheHdrs {
 		if s.cache[k] == "" { // if empty
 			s.cache[k] = v
 		}
@@ -110,7 +109,6 @@ func handleDir(path string, w http.ResponseWriter, r *http.Request) {
 	}
 	response := strings.Join(outputDirList, "<br />")
 	w.Write([]byte(string(response)))
-	log.Println("Served dir")
 }
 
 func handleFile(path string, w http.ResponseWriter, r *http.Request) {
